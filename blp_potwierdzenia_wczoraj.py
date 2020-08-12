@@ -16,11 +16,12 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 
 
+
 def potwierdzenia_wczoraj():
 
     opts = Options()
-    # opts.headless = True
-    # assert opts.headless  # Operating in headless mode
+    opts.headless = True
+    assert opts.headless  # Operating in headless mode
 
     # get the path of ChromeDriverServer
     # odpowiedni chromedriver pobrany z https://chromedriver.chromium.org/downloads
@@ -41,7 +42,8 @@ def potwierdzenia_wczoraj():
         params = {'cmd':'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_dir}}
         browser.execute("send_command", params)
 
-
+    # ustawiam czas czekania na poprawne załadowanie strony
+    # to lepsze niż time.sleep
     driver.implicitly_wait(30)
     # driver.maximize_window()
 
@@ -49,8 +51,10 @@ def potwierdzenia_wczoraj():
     url = 'http://www.podatki.gov.pl/wykaz-podatnikow-vat-wyszukiwarka/'
     driver.get(url)
 
+    # ustalam miejsce zapisywania pobranych plików
     enable_download_headless(driver, path_source)
 
+    # ustalam czas czekania na załadowanie poszczególnych elementów
     delay = 5  # seconds
 
     # Zepewnienie, że strona jest załadowana
@@ -62,7 +66,6 @@ def potwierdzenia_wczoraj():
 
     # pobieram bieżącą datę i tworzę folder z datą w nazwie
     data = datetime.now()
-    data_str = data.strftime("%Y%m%d")
 
     parent_dir = '\\\\plrudfps01\\data\\Rudniki\\archiwizacja_faktur\\BLP_REPORTS\\screenshots\\'
     directory = 'BLP_screenshots_' + data.strftime("%Y-%m-%d_%H%M") +'\\'
@@ -70,34 +73,24 @@ def potwierdzenia_wczoraj():
     os.mkdir(folder)
     print(folder)
 
-    # data_w_blp = input('Podaj datę w formacie: 24-01-2020 \n')
+    data_w_blp = input('Podaj datę w nazwie plików excel w formacie dd-mm-rrrr czyli np.: 31-07-2020\n>>>>')
 
-    data_w_blp = data - timedelta(days=1)
-    data_w_blp = data_w_blp.strftime("%d-%m-%Y")
+    # data_w_blp = data - timedelta(days=2)
+    # data_w_blp = data_w_blp.strftime("%d-%m-%Y")
     data_w_nazwie_plikow_excel = data_w_blp[6:]+'-'+data_w_blp[3:5]+'-'+data_w_blp[0:2]
-    print(data_w_nazwie_plikow_excel)
 
-    # TODO w ostatecznej wersji wrócić do pobrania odpiwiednich rachunków
+
+    # print(data_w_nazwie_plikow_excel)
     lista_rachunkow = listOfAccounts.make_list_of_accounts(data.strftime(data_w_nazwie_plikow_excel))
 
-    print(lista_rachunkow)
-
+    # print(lista_rachunkow)
     if not lista_rachunkow:
         print('Nie ma plików excel z wczorajszą datą. Nie pobieram potwieredzeń.')
-
     else:
-
-
-
-        # lista_rachunkow = ['92873500070009427230000010',
-        #                    '56105000861000002293400848',
-        #                    '49219000023000004625800101']
-
-        print(lista_rachunkow)
-
+        # print(lista_rachunkow)
         print('I am on the proper page ready for searching.')
 
-        # get the search textbox
+        # dla każdego rachunku poprzez pętle pobiorę zaświadczenie
         licznik = 0
         weryfikacja = {}
         list_of_id = []
@@ -112,9 +105,7 @@ def potwierdzenia_wczoraj():
             # enter search keyword and submit
 
             try:
-
                 # zapewnienie, że okienko do wpisania rachunku jest aktywne
-
                 try:
                     myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.NAME, 'inputType')))
                     print("Okienko do wpisania rachunku jest załadowane!")
@@ -143,23 +134,17 @@ def potwierdzenia_wczoraj():
                 except TimeoutException:
                     print("okienko do wpisania nowej daty nie działa wciąż!")
 
-                # date_change_box = driver.find_element_by_xpath("//div/div/label[@for='vertical-checkbox2']")
-                # date_change_box.click()
-
                 time.sleep(1)
                 date_enter_field = driver.find_element_by_name("inputType3")
-                # date_enter_field.click()
-                # date_enter_field.clear()
-                # date_enter_field.click()
                 date_enter_field.send_keys(Keys.CONTROL, 'a')
                 date_enter_field.send_keys(Keys.BACKSPACE)
                 time.sleep(1)
-                # date_enter_field.click()
                 date_enter_field.send_keys(data_w_blp)
 
                 search_field.submit()
                 time.sleep(3)
 
+                # sprawdzam czy strona dla danego rachunku jest załadowana
 
                 try:
                     myPrintButton = WebDriverWait(driver, delay).until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
@@ -171,12 +156,12 @@ def potwierdzenia_wczoraj():
                 print(content)
                 id_wyszukiwania = content.text[28:]
                 print(content.text)
-                x = rach + id_wyszukiwania
+                x = rach + '_' + id_wyszukiwania
                 print(x)
                 weryfikacja[rach] = id_wyszukiwania
                 list_of_id.append(id_wyszukiwania)
 
-                # zapewnienie, że PrintButton jest gotowy
+                # zapewnienie, że PrintButton jest widzilany
                 try:
                     myPringButtonCheck = WebDriverWait(driver, delay).until(
                         EC.presence_of_element_located((By.ID, "superPrintButton")))
@@ -184,22 +169,27 @@ def potwierdzenia_wczoraj():
                 except TimeoutException:
                     print("PrintButton nie działa wciąż!")
 
+                # powyższe nie wystarcza, więc trzeba sprawdzic, czy jest klikalny
 
+                try:
+                    botton_to_click = WebDriverWait(driver, delay).until(
+                        EC.element_to_be_clickable((By.ID, "superPrintButton")))
+                    print("PrintButton jest klikalny")
+                except TimeoutException:
+                    print("PrintButton nie jest klikalny!")
 
-                element = driver.find_element_by_id('superPrintButton')
-                # driver.switch_to.frame(driver.find_element_by_tag_name('iframe'))
+                botton_to_click.click()
                 time.sleep(2)
-                element.send_keys("\n")
-                time.sleep(2)
-                print('klikam print')
+                print('klikam print\n')
                 time.sleep(2)
 
                 # odświeżęnie strony
                 driver.get(url)
                 time.sleep(2)
 
-            except:
-
+            # dodałam ten blok wyjątków, żeby jeden trefny rachunek nie spieprzył całego programu
+            except Exception as e:
+                print(e)
                 print(f'Pobranie potwierdzenia dla {rachunek} nie powiodło się.\n')
                 driver.get(url)
                 time.sleep(2)
@@ -219,12 +209,10 @@ def potwierdzenia_wczoraj():
         print(folder)
         txt_file = folder + "weryfikacja.csv"
 
-        w = csv.writer(open(txt_file, "w"))
+        w = csv.writer(open(txt_file, "w", newline=''))
 
         for key, val in weryfikacja.items():
             w.writerow([key, val])
-
-        #
 
 
         # przenoszę pliki w miejsce docelowe

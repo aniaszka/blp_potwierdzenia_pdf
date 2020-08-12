@@ -9,17 +9,17 @@ def make_list_of_accounts(data):
     pliki_blp = glob.glob(path + 'BLP_' + data + '*.xlsx')
     print(pliki_blp)
     ile_blp = len(pliki_blp)
-    print(ile_blp)
+    print(f'liczba plików z rachunkami: {ile_blp}.')
     if ile_blp > 0:
         tabela = pd.concat(map(lambda file: pd.read_excel(file, usecols=['rachunek','Czy odszukał po rachunku?'], dtype = str), pliki_blp))
-        print('jestem tutaj')
-        print(tabela)
+
+        # print(tabela)
         tabela = tabela[tabela['Czy odszukał po rachunku?']=='True']
         tabela = tabela.drop_duplicates()
         tabela = tabela.reset_index()
-        print(tabela)
+        # print(tabela)
         rach = tabela['rachunek']
-        print(type(rach))
+        # print(type(rach))
         lista_rach = rach.tolist()
         return lista_rach
 
