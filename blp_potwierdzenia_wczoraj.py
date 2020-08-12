@@ -19,8 +19,8 @@ from selenium.webdriver.common.keys import Keys
 def potwierdzenia_wczoraj():
 
     opts = Options()
-    opts.headless = True
-    assert opts.headless  # Operating in headless mode
+    # opts.headless = True
+    # assert opts.headless  # Operating in headless mode
 
     # get the path of ChromeDriverServer
     # odpowiedni chromedriver pobrany z https://chromedriver.chromium.org/downloads
@@ -79,6 +79,8 @@ def potwierdzenia_wczoraj():
 
     # TODO w ostatecznej wersji wrócić do pobrania odpiwiednich rachunków
     lista_rachunkow = listOfAccounts.make_list_of_accounts(data.strftime(data_w_nazwie_plikow_excel))
+
+    print(lista_rachunkow)
 
     if not lista_rachunkow:
         print('Nie ma plików excel z wczorajszą datą. Nie pobieram potwieredzeń.')
@@ -185,6 +187,7 @@ def potwierdzenia_wczoraj():
 
 
                 element = driver.find_element_by_id('superPrintButton')
+                # driver.switch_to.frame(driver.find_element_by_tag_name('iframe'))
                 time.sleep(2)
                 element.send_keys("\n")
                 time.sleep(2)
@@ -196,6 +199,7 @@ def potwierdzenia_wczoraj():
                 time.sleep(2)
 
             except:
+
                 print(f'Pobranie potwierdzenia dla {rachunek} nie powiodło się.\n')
                 driver.get(url)
                 time.sleep(2)
