@@ -9,5 +9,6 @@ def konfiguracja(filename):
     path_source = config.get('sciezki', 'path_source')
     path_destination = config.get('sciezki', 'path_destination')
     path_chrome_driver = config.get('sciezki', 'path_chrome_driver')
+    path_excel = config.get('sciezki', 'path_excel')
 
-    return path_source, path_destination, path_chrome_driver
+    return path_source, path_destination, path_chrome_driver, path_excel

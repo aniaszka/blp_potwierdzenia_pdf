@@ -32,7 +32,7 @@ def potwierdzenia_wczoraj():
 
     # pobieram scieżki
     filename = 'blp_settings.ini'
-    path_source, path_destination, path_chrome_driver = \
+    path_source, path_destination, path_chrome_driver, path_excel = \
         konfiguracja.konfiguracja(
         filename)
 
@@ -79,7 +79,8 @@ def potwierdzenia_wczoraj():
     # pobieram bieżącą datę i tworzę folder z datą w nazwie
     data = datetime.now()
 
-    parent_dir = '\\\\plrudfps01\\data\\Rudniki\\archiwizacja_faktur\\BLP_REPORTS\\screenshots\\'
+    # parent_dir = '\\\\plrudfps01\\data\\Rudniki\\archiwizacja_faktur\\BLP_REPORTS\\screenshots\\'
+    parent_dir = path_destination
     directory = 'BLP_screenshots_' + data.strftime("%Y-%m-%d_%H%M") +'\\'
     folder = os.path.join(parent_dir, directory)
     os.mkdir(folder)
@@ -89,7 +90,7 @@ def potwierdzenia_wczoraj():
 
 
     # print(data_w_nazwie_plikow_excel)
-    lista_rachunkow = listOfAccounts.make_list_of_accounts(data.strftime(data_w_nazwie_plikow_excel))
+    lista_rachunkow = listOfAccounts.make_list_of_accounts(data.strftime(data_w_nazwie_plikow_excel), path_excel)
 
     # print(lista_rachunkow)
     if not lista_rachunkow:
