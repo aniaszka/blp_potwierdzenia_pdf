@@ -5,9 +5,8 @@ import pandas as pd
 # data = '2020-01-17' # tylko do testów. w pliku blp_wydruk stosowana jest data today lub yesterday
 def make_list_of_accounts(data, path):
     """pobiera listę rachunków z raportów excel z danego dnia"""
-    # path = '\\\\plrudfps01\\data\\Rudniki\\archiwizacja_faktur\\BLP_REPORTS\\EXCEL_Reports\\'
     pliki_blp = glob.glob(path + 'BLP_' + data + '*.xlsx')
-    print(pliki_blp)
+
     ile_blp = len(pliki_blp)
     print(f'liczba plików z rachunkami: {ile_blp}.')
     if ile_blp > 0:

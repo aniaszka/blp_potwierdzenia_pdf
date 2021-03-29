@@ -18,12 +18,10 @@ from selenium.webdriver.common.keys import Keys
 
 
 def potwierdzenia_wczoraj():
-    ## TODO przenieść na początek zapytanie o datę
 
     data_w_blp = input('Podaj datę w nazwie plików excel w formacie dd-mm-rrrr'
                        'czyli np.: 31-07-2020\n>>>>')
-    # data_w_blp = data - timedelta(days=2)
-    # data_w_blp = data_w_blp.strftime("%d-%m-%Y")
+
     data_w_nazwie_plikow_excel = data_w_blp[6:] + '-' + data_w_blp[3:5] + '-' + data_w_blp[0:2]
 
     opts = Options()
@@ -38,26 +36,23 @@ def potwierdzenia_wczoraj():
 
     # get the path of ChromeDriverServer
     # odpowiedni chromedriver pobrany z https://chromedriver.chromium.org/downloads
-    ## TODO często trzeba aktualizowach poniższy dodatek. Zrobić do tego ścieżkę w pliku settings.
-    # pat_chrome_driver = r'C:\Users\aszadkowska\Documents\dodatki\chromedriver_win32_2020_12'
-    chrome_driver_path = path_chrome_driver + "\chromedriver.exe"
+    chrome_driver_path = path_chrome_driver + "chromedriver.exe"
 
     # create a new Chrome session
     driver = webdriver.Chrome(chrome_driver_path, options=opts)
 
-
-
     # funkcja która naprawia błąd z pobraniem potwierdzeń w tle.
 
     def enable_download_headless(browser,download_dir):
-        browser.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
-        params = {'cmd':'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_dir}}
+        browser.command_executor._commands["send_command"] = ("POST",
+                                '/session/$sessionId/chromium/send_command')
+        params = {'cmd':'Page.setDownloadBehavior',
+                  'params': {'behavior': 'allow', 'downloadPath': download_dir}}
         browser.execute("send_command", params)
 
     # ustawiam czas czekania na poprawne załadowanie strony
     # to lepsze niż time.sleep
     driver.implicitly_wait(30)
-    # driver.maximize_window()
 
     # Navigate to the application home page
     url = 'http://www.podatki.gov.pl/wykaz-podatnikow-vat-wyszukiwarka/'
@@ -79,14 +74,10 @@ def potwierdzenia_wczoraj():
     # pobieram bieżącą datę i tworzę folder z datą w nazwie
     data = datetime.now()
 
-    # parent_dir = '\\\\plrudfps01\\data\\Rudniki\\archiwizacja_faktur\\BLP_REPORTS\\screenshots\\'
     parent_dir = path_destination
     directory = 'BLP_screenshots_' + data.strftime("%Y-%m-%d_%H%M") +'\\'
     folder = os.path.join(parent_dir, directory)
     os.mkdir(folder)
-    print(folder)
-
-
 
 
     # print(data_w_nazwie_plikow_excel)
