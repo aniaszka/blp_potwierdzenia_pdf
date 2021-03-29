@@ -18,22 +18,34 @@ from selenium.webdriver.common.keys import Keys
 
 
 def potwierdzenia_wczoraj():
+    ## TODO przenieść na początek zapytanie o datę
+
+    data_w_blp = input('Podaj datę w nazwie plików excel w formacie dd-mm-rrrr'
+                       'czyli np.: 31-07-2020\n>>>>')
+    # data_w_blp = data - timedelta(days=2)
+    # data_w_blp = data_w_blp.strftime("%d-%m-%Y")
+    data_w_nazwie_plikow_excel = data_w_blp[6:] + '-' + data_w_blp[3:5] + '-' + data_w_blp[0:2]
 
     opts = Options()
     opts.headless = True
     assert opts.headless  # Operating in headless mode
 
+    # pobieram scieżki
+    filename = 'blp_settings.ini'
+    path_source, path_destination, path_chrome_driver = \
+        konfiguracja.konfiguracja(
+        filename)
+
     # get the path of ChromeDriverServer
     # odpowiedni chromedriver pobrany z https://chromedriver.chromium.org/downloads
-    dir = r'C:\Users\aszadkowska\Documents\dodatki\chromedriver_win32'
-    chrome_driver_path = dir + "\chromedriver.exe"
+    ## TODO często trzeba aktualizowach poniższy dodatek. Zrobić do tego ścieżkę w pliku settings.
+    # pat_chrome_driver = r'C:\Users\aszadkowska\Documents\dodatki\chromedriver_win32_2020_12'
+    chrome_driver_path = path_chrome_driver + "\chromedriver.exe"
 
     # create a new Chrome session
     driver = webdriver.Chrome(chrome_driver_path, options=opts)
 
-    # pobieram scieżki
-    filename = 'settings.ini'
-    path_source, path_destination = konfiguracja.konfiguracja(filename)
+
 
     # funkcja która naprawia błąd z pobraniem potwierdzeń w tle.
 
@@ -73,11 +85,7 @@ def potwierdzenia_wczoraj():
     os.mkdir(folder)
     print(folder)
 
-    data_w_blp = input('Podaj datę w nazwie plików excel w formacie dd-mm-rrrr czyli np.: 31-07-2020\n>>>>')
 
-    # data_w_blp = data - timedelta(days=2)
-    # data_w_blp = data_w_blp.strftime("%d-%m-%Y")
-    data_w_nazwie_plikow_excel = data_w_blp[6:]+'-'+data_w_blp[3:5]+'-'+data_w_blp[0:2]
 
 
     # print(data_w_nazwie_plikow_excel)
